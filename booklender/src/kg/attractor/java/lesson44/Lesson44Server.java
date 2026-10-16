@@ -5,6 +5,10 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import kg.attractor.java.model.Book;
+import kg.attractor.java.model.BookListDataModel;
+import kg.attractor.java.model.BookListItem;
+import kg.attractor.java.model.Employee;
 import kg.attractor.java.server.BasicServer;
 import kg.attractor.java.server.ContentType;
 import kg.attractor.java.server.ResponseCodes;
@@ -13,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
 public class Lesson44Server extends BasicServer {
     private final static Configuration freemarker = initFreeMarker();
@@ -20,6 +25,7 @@ public class Lesson44Server extends BasicServer {
     public Lesson44Server(String host, int port) throws IOException {
         super(host, port);
         registerGet("/sample", this::freemarkerSampleHandler);
+        registerGet("/books", this::freemarkerBooksHandler);
     }
 
     private static Configuration initFreeMarker() {
@@ -41,6 +47,10 @@ public class Lesson44Server extends BasicServer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void freemarkerBooksHandler(HttpExchange exchange){
+        renderTemplate(exchange, "books.html", getBookListDataModel());
     }
 
     private void freemarkerSampleHandler(HttpExchange exchange) {
@@ -82,5 +92,17 @@ public class Lesson44Server extends BasicServer {
         // возвращаем экземпляр тестовой модели-данных
         // которую freemarker будет использовать для наполнения шаблона
         return new SampleDataModel();
+    }
+
+    private BookListDataModel getBookListDataModel() {
+        Employee employee = new Employee(1, "Иван Петров");
+
+        Book borrowedBook = new Book(1, "Чистый код", "Роберт Мартин");
+        Book availableBook = new Book(2, "Эффективная Java", "Джошуа Блох");
+
+        return new BookListDataModel(List.of(
+                new BookListItem(borrowedBook, employee),
+                new BookListItem(availableBook, null)
+        ));
     }
 }

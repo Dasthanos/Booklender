@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Книги библиотеки</title>
+    <style>
+        body { max-width: 900px; margin: 40px auto; padding: 0 20px; font: 16px Arial, sans-serif; color: #263238; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f2f5f7; }
+        .available { color: #167447; }
+        .borrowed { color: #a34a12; }
+    </style>
+</head>
+<body>
+<h1>Книги библиотеки</h1>
+<p>Нажми на название, чтобы открыть информацию о книге.</p>
+<table>
+    <thead>
+    <tr>
+        <th>Название</th>
+        <th>Автор</th>
+        <th>Статус</th>
+        <th>Сотрудник</th>
+    </tr>
+    </thead>
+    <tbody>
+    <#list books as item>
+        <tr>
+            <td><a href="/book?id=${item.book.id}">${item.book.title}</a></td>
+            <td>${item.book.author}</td>
+            <#if item.borrowed>
+                <td class="borrowed">Выдана</td>
+                <td>${item.currentHolder.fullName}</td>
+            <#else>
+                <td class="available">Доступна</td>
+                <td>—</td>
+            </#if>
+        </tr>
+    </#list>
+    </tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>${book.title}</title>
+    <style>
+        body { max-width: 720px; margin: 40px auto; padding: 0 20px; font: 16px Arial, sans-serif; color: #263238; }
+        main { padding: 24px; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+<p><a href="/books">← Все книги</a></p>
+<main>
+    <h1>${book.title}</h1>
+    <p><strong>Автор:</strong> ${book.author}</p>
+    <p><strong>ID:</strong> ${book.id}</p>
+    <#if borrowed>
+        <p><strong>Статус:</strong> Выдана</p>
+        <p><strong>Сейчас у:</strong> ${currentHolder.fullName}</p>
+    <#else>
+        <p><strong>Статус:</strong> Доступна</p>
+    </#if>
+</main>
+</body>
+</html>
