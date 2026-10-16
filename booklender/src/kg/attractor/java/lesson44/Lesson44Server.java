@@ -26,6 +26,7 @@ public class Lesson44Server extends BasicServer {
         super(host, port);
         registerGet("/sample", this::freemarkerSampleHandler);
         registerGet("/books", this::freemarkerBooksHandler);
+        registerGet("/book", this::freemarkerBookHandler);
     }
 
     private static Configuration initFreeMarker() {
@@ -46,6 +47,47 @@ public class Lesson44Server extends BasicServer {
             return cfg;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void freemarkerBookHandler(HttpExchange exchange) {
+        String query = exchange.getRequestURI().getQuery(); // id=1
+
+        if (query == null || !query.startsWith("id=")) {
+            sendBookNotFound(exchange);
+            return;
+        }
+
+        int id;
+        try {
+            id = Integer.parseInt(query.substring(3));
+        } catch (NumberFormatException e) {
+            sendBookNotFound(exchange);
+            return;
+        }
+        BookListItem selectedItem = getBookListDataModel().getBooks().stream()
+                .filter(item -> item.getBook().getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (selectedItem == null) {
+            sendBookNotFound(exchange);
+            return;
+        }
+
+        renderTemplate(exchange, "book.html", selectedItem);
+    }
+
+    private void sendBookNotFound(HttpExchange exchange) {
+        try {
+            sendByteData(
+                    exchange,
+                    ResponseCodes.NOT_FOUND,
+                    ContentType.TEXT_PLAIN,
+                    "Книга не найдена".getBytes(java.nio.charset.StandardCharsets.UTF_8)
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
