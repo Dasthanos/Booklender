@@ -5,10 +5,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import kg.attractor.java.model.Book;
-import kg.attractor.java.model.BookListDataModel;
-import kg.attractor.java.model.BookListItem;
-import kg.attractor.java.model.Employee;
+import kg.attractor.java.model.*;
 import kg.attractor.java.server.BasicServer;
 import kg.attractor.java.server.ContentType;
 import kg.attractor.java.server.ResponseCodes;
@@ -21,12 +18,17 @@ import java.util.List;
 
 public class Lesson44Server extends BasicServer {
     private final static Configuration freemarker = initFreeMarker();
+    private final Employee employee = new Employee(1, "Иван Петров");
+    private final Book cleanCode = new Book(1, "Чистый код", "Роберт Мартин");
+    private final Book effectiveJava =
+            new Book(2, "Эффективная Java", "Джошуа Блох");
 
     public Lesson44Server(String host, int port) throws IOException {
         super(host, port);
         registerGet("/sample", this::freemarkerSampleHandler);
         registerGet("/books", this::freemarkerBooksHandler);
         registerGet("/book", this::freemarkerBookHandler);
+        registerGet("/employee", this::freemarkerEmployeeHandler);
     }
 
     private static Configuration initFreeMarker() {
@@ -91,6 +93,10 @@ public class Lesson44Server extends BasicServer {
         }
     }
 
+    private void freemarkerEmployeeHandler(HttpExchange exchange) {
+        renderTemplate(exchange, "employee.html", getEmployeePageDataModel());
+    }
+
     private void freemarkerBooksHandler(HttpExchange exchange){
         renderTemplate(exchange, "books.html", getBookListDataModel());
     }
@@ -136,15 +142,17 @@ public class Lesson44Server extends BasicServer {
         return new SampleDataModel();
     }
 
+    private EmployeePageDataModel getEmployeePageDataModel() {
+        List<Book> currentBooks = List.of(cleanCode);
+        List<Book> pastBooks = List.of(effectiveJava);
+
+        return new EmployeePageDataModel(employee, currentBooks, pastBooks);
+    }
+
     private BookListDataModel getBookListDataModel() {
-        Employee employee = new Employee(1, "Иван Петров");
-
-        Book borrowedBook = new Book(1, "Чистый код", "Роберт Мартин");
-        Book availableBook = new Book(2, "Эффективная Java", "Джошуа Блох");
-
         return new BookListDataModel(List.of(
-                new BookListItem(borrowedBook, employee),
-                new BookListItem(availableBook, null)
+                new BookListItem(cleanCode, employee),
+                new BookListItem(effectiveJava, null)
         ));
     }
 }
