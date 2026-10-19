@@ -34,7 +34,7 @@ public class Loan {
         return returnedAt==null;
     }
 
-    void setReturnedAt(LocalDate returnedAt) {
+    private void setReturnedAt(LocalDate returnedAt) {
         this.returnedAt = returnedAt;
     }
 
