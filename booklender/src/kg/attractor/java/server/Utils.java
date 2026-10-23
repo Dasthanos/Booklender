@@ -27,39 +27,23 @@ public class Utils {
     }
 
     static Optional<Map.Entry<String, String>> decode(String kv) {
-
         // если в элементе нет символа = , то
-
         // это не то что нам требуется
-
+        kv = kv.strip();
         if (!kv.contains("=")) {
-
             return Optional.empty();
-
         }
-
         // если после разделения элемента по символу =
-
         // получилось не две части, то это не то,
-
         // что мы можем декодировать
-
         String[] pair = kv.split("=");
-
         if (pair.length != 2) {
-
             return Optional.empty();
-
         }
-
         // декодируем из процентного формата в текстовый
-
         Charset utf8 = StandardCharsets.UTF_8;
-
         String key = URLDecoder.decode(pair[0], utf8);
-
         String value = URLDecoder.decode(pair[1], utf8);
-
         return Optional.of(Map.entry(key, value));
 
     }

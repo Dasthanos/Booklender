@@ -22,6 +22,7 @@
         <th>Автор</th>
         <th>Статус</th>
         <th>Сотрудник</th>
+        <th>Действие</th>
     </tr>
     </thead>
     <tbody>
@@ -36,6 +37,19 @@
                 <td class="available">Доступна</td>
                 <td>—</td>
             </#if>
+            <td>
+                <#if item.borrowed>
+                    <form action="/return" method="post">
+                        <input type="hidden" name="bookId" value="${item.book.id}">
+                        <button type="submit">Вернуть</button>
+                    </form>
+                <#else>
+                    <form action="/borrow" method="post">
+                        <input type="hidden" name="bookId" value="${item.book.id}">
+                        <button type="submit">Взять</button>
+                    </form>
+                </#if>
+            </td>
         </tr>
     </#list>
     </tbody>

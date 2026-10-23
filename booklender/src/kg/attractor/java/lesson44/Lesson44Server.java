@@ -31,6 +31,10 @@ public class Lesson44Server extends BasicServer {
         registerGet("/employee", this::freemarkerEmployeeHandler);
     }
 
+    protected List<Book> getBooks() {
+        return List.of(cleanCode, effectiveJava);
+    }
+
     private static Configuration initFreeMarker() {
         try {
             Configuration cfg = new Configuration(Configuration.VERSION_2_3_29);

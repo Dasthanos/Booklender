@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import kg.attractor.java.gson.EmployeeStorage;
 import kg.attractor.java.model.Employee;
 import kg.attractor.java.server.ContentType;
+import kg.attractor.java.server.Cookie;
 import kg.attractor.java.server.ResponseCodes;
 import kg.attractor.java.server.Utils;
 
@@ -14,14 +15,17 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Lesson45Server extends Lesson44Server{
 
     private final EmployeeStorage employeeStorage = new EmployeeStorage();
     private final List<Employee> employees = employeeStorage.load();
+    private final Map<String, Employee> sessions = new HashMap<>();
 
     public Lesson45Server(String host, int port) throws IOException {
         super(host, port);
@@ -31,15 +35,60 @@ public class Lesson45Server extends Lesson44Server{
         registerGet("/register", this::registerPage);
         registerPost("/register", this::registerEmployee);
         registerGet("/profile", this::profileGet);
+        registerPost("/logout", this::logoutPost);
+    }
+    private void logoutPost(HttpExchange exchange) {
+        String cookieHeader = exchange.getRequestHeaders().getFirst("Cookie");
+
+        if (cookieHeader != null) {
+            Map<String, String> cookies = Utils.parseUrlEncoded(cookieHeader, ";");
+            String sessionId = cookies.get("sessionId");
+
+            if (sessionId != null) {
+                sessions.remove(sessionId);
+            }
+        }
+
+        Cookie expiredCookie = Cookie.make("sessionId", "deleted");
+        expiredCookie.setMaxAge(0);
+        expiredCookie.setHttpOnly(true);
+        exchange.getResponseHeaders().add("Set-Cookie", expiredCookie.toString());
+
+        renderTemplate(exchange, "login.html",
+                Map.of("error", "Вы вышли из системы"));
+    }
+
+    protected Employee getEmployeeById(int employeeId) {
+        return employees.stream()
+                .filter(employee -> employee.getId() == employeeId)
+                .findFirst()
+                .orElse(null);
+    }
+
+    protected Employee getCurrentEmployee(HttpExchange exchange){
+        String cookieHeader = exchange.getRequestHeaders().getFirst("Cookie");
+        if(cookieHeader==null){
+            return null;
+        }
+        String sessionId = Cookie.parse(cookieHeader).get("sessionId");
+        if (sessionId==null){
+            return null;
+        }
+        return sessions.get(sessionId);
     }
 
     private void profileGet(HttpExchange exchange) {
-        Employee employee = new Employee(
-                0,
-                "Некий пользователь",
-                "unknown@example.com",
-                ""
-        );
+        Employee employee = getCurrentEmployee(exchange);
+
+        if (employee==null){
+             employee = new Employee(
+                    0,
+                    "Некий пользователь",
+                    "unknown@example.com",
+                    ""
+            );
+        }
+
 
         renderTemplate(
                 exchange,
@@ -121,6 +170,14 @@ public class Lesson45Server extends Lesson44Server{
             );
             return;
         }
+        String sessionId = UUID.randomUUID().toString();
+        sessions.put(sessionId, matchedEmployee);
+
+        Cookie sessionCookie = Cookie.make("sessionId", sessionId);
+        sessionCookie.setMaxAge(600);
+        sessionCookie.setHttpOnly(true);
+
+        exchange.getResponseHeaders().add("Set-Cookie", sessionCookie.toString());
 
         renderTemplate(
                 exchange,
