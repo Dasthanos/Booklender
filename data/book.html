@@ -13,6 +13,11 @@
 <main>
     <h1>${book.title}</h1>
     <p><strong>Автор:</strong> ${book.author}</p>
+    <img src="${book.imagePath}"
+         alt="Обложка книги ${book.title}"
+         style="max-width: 200px; display: block; margin: 16px 0;">
+
+    <p><strong>Описание:</strong> ${book.description}</p>
     <p><strong>ID:</strong> ${book.id}</p>
     <#if borrowed>
         <p><strong>Статус:</strong> Выдана</p>

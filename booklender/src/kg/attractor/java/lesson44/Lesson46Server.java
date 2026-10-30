@@ -2,10 +2,13 @@ package kg.attractor.java.lesson44;
 
 import com.sun.net.httpserver.HttpExchange;
 import kg.attractor.java.model.*;
+import kg.attractor.java.server.ContentType;
 import kg.attractor.java.server.Cookie;
+import kg.attractor.java.server.ResponseCodes;
 import kg.attractor.java.server.Utils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +23,97 @@ public class Lesson46Server extends Lesson45Server{
         registerPost("/borrow", this::borrowBook);
         registerGet("/books", this::booksHandler);
         registerPost("/return", this::returnBook);
+        registerGet("/profile", this::profileHandler);
+        registerGet("/employee", this::profileHandler);
+        registerGet("/book", this::bookHandler);
+    }
+
+    private void bookHandler(HttpExchange exchange) {
+        String query = exchange.getRequestURI().getQuery(); // id=1
+
+        if (query == null || !query.startsWith("id=")) {
+            sendBookNotFound(exchange);
+            return;
+        }
+
+        int id;
+        try {
+            id = Integer.parseInt(query.substring(3));
+        } catch (NumberFormatException e) {
+            sendBookNotFound(exchange);
+            return;
+        }
+        BookListItem selectedItem = createBookListDataModel().getBooks().stream()
+                .filter(item -> item.getBook().getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (selectedItem == null) {
+            sendBookNotFound(exchange);
+            return;
+        }
+
+        renderTemplate(exchange, "book.html", selectedItem);
+    }
+
+    private void sendBookNotFound(HttpExchange exchange) {
+        try {
+            sendByteData(
+                    exchange,
+                    ResponseCodes.NOT_FOUND,
+                    ContentType.TEXT_PLAIN,
+                    "Книга не найдена".getBytes(StandardCharsets.UTF_8)
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void showProfile(HttpExchange exchange, Employee employee) {
+        renderTemplate(exchange, "employee.html",
+                createEmployeePageDataModel(employee));
+    }
+
+    private EmployeePageDataModel createEmployeePageDataModel(Employee employee) {
+        List<Book> currentBooks = new ArrayList<>();
+        List<Book> pastBooks = new ArrayList<>();
+
+        for (Loan loan : loans) {
+            if (loan.getEmployeeId() != employee.getId()) {
+                continue;
+            }
+
+            Book loanedBook = null;
+            for (Book book : getBooks()) {
+                if (book.getId() == loan.getBookId()) {
+                    loanedBook = book;
+                    break;
+                }
+            }
+            if (loanedBook == null) {
+                continue;
+            }
+            if (loan.isActive()) {
+                currentBooks.add(loanedBook);
+            } else {
+                pastBooks.add(loanedBook);
+            }
+        }
+        return new EmployeePageDataModel(employee, currentBooks, pastBooks);
+    }
+
+    private void profileHandler(HttpExchange exchange) {
+        Employee employee = getCurrentEmployee(exchange);
+
+        if (employee == null) {
+            renderTemplate(exchange, "login.html",
+                    Map.of("error", "Войдите в систему для просмотра профиля"));
+            return;
+        }
+
+        renderTemplate(exchange, "employee.html",
+                createEmployeePageDataModel(employee));
     }
 
     private void returnBook(HttpExchange exchange) {

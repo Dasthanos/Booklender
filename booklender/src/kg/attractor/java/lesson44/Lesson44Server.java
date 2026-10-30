@@ -19,9 +19,21 @@ import java.util.List;
 public class Lesson44Server extends BasicServer {
     private final static Configuration freemarker = initFreeMarker();
     private final Employee employee = new Employee(1, "Иван Петров");
-    private final Book cleanCode = new Book(1, "Чистый код", "Роберт Мартин");
-    private final Book effectiveJava =
-            new Book(2, "Эффективная Java", "Джошуа Блох");
+    private final Book cleanCode = new Book(
+            1,
+            "Чистый код",
+            "Роберт Мартин",
+            "Практическое руководство по написанию понятного и поддерживаемого кода.",
+            "/images/1.jpg"
+    );
+
+    private final Book effectiveJava = new Book(
+            2,
+            "Эффективная Java",
+            "Джошуа Блох",
+            "Советы и лучшие практики программирования на Java.",
+            "/images/1.jpg"
+    );
 
     public Lesson44Server(String host, int port) throws IOException {
         super(host, port);

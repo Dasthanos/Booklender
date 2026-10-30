@@ -179,11 +179,12 @@ public class Lesson45Server extends Lesson44Server{
 
         exchange.getResponseHeaders().add("Set-Cookie", sessionCookie.toString());
 
-        renderTemplate(
-                exchange,
-                "profile.html",
-                Map.of("employee", matchedEmployee)
-        );
+        showProfile(exchange, matchedEmployee);
+    }
+
+    protected void showProfile(HttpExchange exchange, Employee employee) {
+        renderTemplate(exchange, "profile.html",
+                Map.of("employee", employee));
     }
 
     public static String getContentType(HttpExchange exchange) {
