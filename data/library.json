@@ -1,0 +1,34 @@
+{
+  "employees": [
+    {
+      "id": 1,
+      "fullName": "Иван Петров"
+    }
+  ],
+  "books": [
+    {
+      "id": 1,
+      "title": "Чистый код",
+      "author": "Роберт Мартин"
+    },
+    {
+      "id": 2,
+      "title": "Эффективная Java",
+      "author": "Джошуа Блох"
+    }
+  ],
+  "loans": [
+    {
+      "bookId": 1,
+      "employeeId": 1,
+      "borrowedAt": "2026-10-10",
+      "returnedAt": null
+    },
+    {
+      "bookId": 2,
+      "employeeId": 1,
+      "borrowedAt": "2026-10-01",
+      "returnedAt": "2026-10-05"
+    }
+  ]
+}

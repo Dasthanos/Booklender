@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сотрудник — ${employee.fullName}</title>
+    <style>
+        body {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            font-family: Arial, sans-serif;
+            color: #222;
+        }
+
+        .book {
+            margin: 12px 0;
+            padding: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .book h3 {
+            margin: 0 0 6px;
+        }
+
+        a {
+            color: #1769aa;
+        }
+    </style>
+</head>
+<body>
+<p><a href="/books">← К списку книг</a></p>
+
+<h1>${employee.fullName}</h1>
+<p>ID сотрудника: ${employee.id}</p>
+
+<h2>Книги сейчас</h2>
+<#list currentBooks as book>
+<div class="book">
+    <h3><a href="/book?id=${book.id}">${book.title}</a></h3>
+    <p>Автор: ${book.author}</p>
+</div>
+<#else>
+<p>Сейчас сотрудник не читает книги.</p>
+</#list>
+
+<h2>Брал раньше</h2>
+<#list pastBooks as book>
+<div class="book">
+    <h3><a href="/book?id=${book.id}">${book.title}</a></h3>
+    <p>Автор: ${book.author}</p>
+</div>
+<#else>
+<p>Раньше сотрудник не брал книги.</p>
+</#list>
+</body>
+</html>
